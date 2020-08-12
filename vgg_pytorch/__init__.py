@@ -11,8 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-from .model import AlexNet
+from .model import VGG
 
 __all__ = [
-    "AlexNet",
+    "VGG",
 ]

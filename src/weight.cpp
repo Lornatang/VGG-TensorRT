@@ -17,14 +17,15 @@
 #include "../include/weight.h"
 
 using namespace nvinfer1;
+using namespace std;
 
-std::map<std::string, Weights> load_weights(const std::string &file) {
-  std::map<std::string, Weights> weights;
+map<string, Weights> load_weights(const string &file) {
+  map<string, Weights> weights;
 
   report_message(0);
-  std::cout << "Opening `" << file << "` TensorRT weights..." << std::endl;
+  cout << "Opening `" << file << "` TensorRT weights..." << endl;
   // Open weights file
-  std::ifstream input(file);
+  ifstream input(file);
   assert(input.is_open() && "Unable to load weight file.");
 
   // Read number of weight blobs
@@ -37,13 +38,13 @@ std::map<std::string, Weights> load_weights(const std::string &file) {
     uint32_t size;
 
     // Read name and type of blob
-    std::string name;
-    input >> name >> std::dec >> size;
+    string name;
+    input >> name >> dec >> size;
     wt.type = DataType::kFLOAT;
 
     // Load blob
-    uint32_t *val = reinterpret_cast<uint32_t *>(malloc(sizeof(val) * size));
-    for (uint32_t x = 0, y = size; x < y; ++x) input >> std::hex >> val[x];
+    auto *val = reinterpret_cast<uint32_t *>(malloc(sizeof(uint32_t) * size));
+    for (uint32_t x = 0, y = size; x < y; ++x) input >> hex >> val[x];
 
     wt.values = val;
     wt.count = size;

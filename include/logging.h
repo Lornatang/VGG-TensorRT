@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef TENSORT_LOGGING_H
+#define TENSORT_LOGGING_H
 
 #include "NvInfer.h"
 #include <ctime>
@@ -57,4 +57,4 @@ class Logger : public nvinfer1::ILogger {
 
 void report_message(unsigned int level);
 
-#endif// LOGGING_H
+#endif// TENSORT_LOGGING_H

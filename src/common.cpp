@@ -27,12 +27,11 @@ vector<string> load_mnist_labels(const string &filename) {
   return labels;
 }
 
-void output_inference_results(float *prob, vector<string> labels,
-                              int number_classes) {
+void output_inference_results(float *prob, vector<string> labels, int number_classes) {
   // Calculate the probability of the top 5 categories
-  std::vector<float> probs;
-  std::vector<std::pair<float, int>> pairs;
-  std::vector<int> results;
+  vector<float> probs;
+  vector<pair<float, int>> pairs;
+  vector<int> results;
 
   probs.reserve(number_classes);
   for (int n = 0; n < number_classes; n++) { probs.push_back(prob[n]); }
@@ -40,20 +39,14 @@ void output_inference_results(float *prob, vector<string> labels,
   // Sort the categories in the array
   pairs.reserve(probs.size());
   for (size_t i = 0; i < probs.size(); ++i) { pairs.emplace_back(probs[i], i); }
-  std::partial_sort(pairs.begin(), pairs.begin() + 5, pairs.end(),
-                    pair_compare);
+  partial_sort(pairs.begin(), pairs.begin() + 5, pairs.end(), pair_compare);
 
   // Formatted output and display
-  std::cout << std::left << std::setw(30) << "--------" << std::right
-            << std::setw(12) << "-----------" << std::endl;
-  std::cout << std::left << std::setw(30) << "Category" << std::right
-            << std::setw(12) << "probability" << std::endl;
-  std::cout << std::left << std::setw(30) << "--------" << std::right
-            << std::setw(12) << "-----------" << std::endl;
+  cout << left << setw(30) << "--------" << right << setw(12) << "-----------" << endl;
+  cout << left << setw(30) << "Category" << right << setw(12) << "probability" << endl;
+  cout << left << setw(30) << "--------" << right << setw(12) << "-----------" << endl;
   for (int i = 0; i < 5; ++i) {
     results.push_back(pairs[i].second);
-    std::cout << std::left << std::setw(30) << labels[pairs[i].second]
-              << std::right << std::setw(9) << prob[pairs[i].second] / 100
-              << std::endl;
+    cout << left << setw(30) << labels[pairs[i].second] << right << setw(9) << prob[pairs[i].second] / 100 << endl;
   }
 }

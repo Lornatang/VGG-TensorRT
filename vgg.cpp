@@ -32,7 +32,7 @@ static const unsigned int INPUT_W = 224;
 const char *INPUT_NAME = "input";
 const char *OUTPUT_NAME = "label";
 const char *LABEL_FILE = "/opt/tensorrt_models/data/imagenet1000.txt";
-const char *ENGINE_FILE = "/opt/tensorrt_models/torch/vgg/vgg11.engine";
+const char *ENGINE_FILE = "/opt/tensorrt_models/torch/vgg/vgg.engine";
 
 
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
   if (std::string(argv[1]) == "--engine") {
     IHostMemory *model_stream{nullptr};
     report_message(0);
-    std::cout << "Start serialize VGG network engine." << std::endl;
+    std::cout << "Start serialize VGG16 network engine." << std::endl;
     serialize_vgg_engine(BATCH_SIZE, &model_stream, atoi(argv[2]));
     assert(model_stream != nullptr);
 

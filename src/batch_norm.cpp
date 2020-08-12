@@ -19,9 +19,8 @@
 using namespace std;
 using namespace nvinfer1;
 
-IScaleLayer *addBatchNorm2d(nvinfer1::INetworkDefinition *network,
-                                      std::map<std::string, nvinfer1::Weights> &weights, nvinfer1::ITensor &input,
-                                      const std::string& lname, float eps) {
+IScaleLayer *addBatchNorm2d(INetworkDefinition *network, map<string, Weights> &weights, ITensor &input,
+                            const string &lname, float eps) {
 
   float *gamma = (float *) weights[lname + ".weight"].values;
   float *beta = (float *) weights[lname + ".bias"].values;

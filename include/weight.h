@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WEIGHT_H
-#define WEIGHT_H
+#ifndef TENSORT_WEIGHT_H
+#define TENSORT_WEIGHT_H
 
 #include "NvInfer.h"
 #include "logging.h"
@@ -25,4 +25,4 @@
 
 std::map<std::string, nvinfer1::Weights> load_weights(const std::string &file);
 
-#endif// WEIGHT_H
+#endif// TENSORT_WEIGHT_H

@@ -25,5 +25,6 @@
 nvinfer1::ICudaEngine *create_vgg11_engine(int max_batch_size, nvinfer1::IBuilder *builder,
                                            nvinfer1::DataType data_type, nvinfer1::IBuilderConfig *config,
                                            int number_classes);
-
+nvinfer1::ICudaEngine *create_vgg_engine(int max_batch_size, nvinfer1::IBuilder *builder, nvinfer1::DataType data_type,
+                                         nvinfer1::IBuilderConfig *config, int number_classes);
 #endif// VGG_NETWORK_H

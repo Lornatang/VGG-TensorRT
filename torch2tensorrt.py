@@ -11,22 +11,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import argparse
 import os
 import struct
+
 import torch
-from torchvision.models import vgg11
+from torchvision.models import vgg16
+
+from vgg_pytorch import VGG
+
+parser = argparse.ArgumentParser(
+    description="Convert from PyTorch weights to TensorRT weights")
+parser.add_argument("--num-classes",
+                    type=int,
+                    default=1000,
+                    help="number of dataset category.")
 
 if not os.path.exists("/opt/tensorrt_models/torch/vgg"):
     os.makedirs("/opt/tensorrt_models/torch/vgg")  # make new output folder
 
 
 def main():
-    model = vgg11(pretrained=True).to("cuda:0")
-    print("Load the official pre-training weight successfully.")
+    args = parser.parse_args()
+    if args.num_classes == 1000:
+        model = vgg16(pretrained=True).to("cuda:0")
+        print("Load the official pre-training vgg16 weight successfully.")
+    else:
+        model = VGG(num_classes=args.num_classes).to("cuda:0")
+        model.load_state_dict(
+            torch.load("/opt/tensorrt_models/torch/vgg/vgg.pth"))
+        print("Load the specified pre-training vgg16 weight successfully.")
 
     model.eval()
 
-    f = open("/opt/tensorrt_models/torch/vgg/vgg11.wts", "w")
+    f = open("/opt/tensorrt_models/torch/vgg/vgg.wts", "w")
     f.write("{}\n".format(len(model.state_dict().keys())))
     for k, v in model.state_dict().items():
         vr = v.reshape(-1).cpu().numpy()
@@ -36,7 +54,9 @@ def main():
             f.write(struct.pack(">f", float(vv)).hex())
         f.write("\n")
 
-    print("The weight conversion has been completed and saved to `/opt/tensorrt_models/torch/vgg/vgg11.wts`.")
+    print(
+        "The weight conversion has been completed and saved to `/opt/tensorrt_models/torch/vgg/vgg.wts`."
+    )
 
 
 if __name__ == "__main__":

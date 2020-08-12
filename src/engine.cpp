@@ -24,20 +24,20 @@ static Logger gLogger; /* NOLINT */
 void serialize_vgg_engine(int max_batch_size, IHostMemory **model_stream, int number_classes) {
   // Create builder
   report_message(0);
-  std::cout << "Creating builder..." << std::endl;
+  cout << "Creating builder..." << endl;
   IBuilder *builder = createInferBuilder(gLogger);
   IBuilderConfig *config = builder->createBuilderConfig();
 
   // Create model to populate the network, then set the outputs and create an engine
   report_message(0);
-  std::cout << "Creating VGG11 network engine..." << std::endl;
-  ICudaEngine *engine = create_vgg11_engine(max_batch_size, builder, DataType::kFLOAT, config, number_classes);
+  cout << "Creating VGG16 network engine..." << endl;
+  ICudaEngine *engine = create_vgg_engine(max_batch_size, builder, DataType::kFLOAT, config, number_classes);
 
   assert(engine != nullptr);
 
   // Serialize the engine
   report_message(0);
-  std::cout << "Serialize model engine..." << std::endl;
+  cout << "Serialize model engine..." << endl;
   (*model_stream) = engine->serialize();
 
   // Close everything down
