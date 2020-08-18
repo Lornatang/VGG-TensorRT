@@ -18,8 +18,8 @@
 cmake_minimum_required(VERSION 3.10.2)
 
 # The name of the project
-set(PROJECT_NAME vgg)
-project(${PROJECT_NAME} VERSION 1.0)
+set(PROJECT_NAME tensorrt_vgg_engine)
+project(${PROJECT_NAME} VERSION 0.0.1)
 
 # Compile using C++17 standard
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
@@ -44,65 +44,24 @@ include_directories(${CUDA_INCLUDE_DIRS})
 link_directories(/usr/local/cuda/lib64)
 link_directories(/usr/local/lib/tensorrt)
 
-# Create all static library
-add_library(common common.cpp)
-add_library(logging logging.cpp)
-add_library(load_weights weight.cpp)
-add_library(inference inference.cpp)
-add_library(batch_norm batch_norm.cpp)
-add_library(create_vgg_engine network.cpp)
-add_library(serialize_vgg_engine engine.cpp)
+# Create all dynamic library
+add_library(${PROJECT_NAME} SHARED vgg_engine.cpp)
 # Link all include file
-target_include_directories(common PUBLIC ../include)
+target_include_directories(${PROJECT_NAME} PUBLIC ../include/vgg_engine.h)
 
-# Install  all static library
-install(TARGETS common
-        ARCHIVE DESTINATION lib/tensorrt
+# Install all static library
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION lib
         PUBLIC_HEADER DESTINATION include/tensorrt)
-install(TARGETS logging
-        ARCHIVE DESTINATION lib/tensorrt
-        PUBLIC_HEADER DESTINATION include/tensorrt)
-install(TARGETS load_weights
-        ARCHIVE DESTINATION lib/tensorrt
-        PUBLIC_HEADER DESTINATION include/tensorrt)
-install(TARGETS inference
-        ARCHIVE DESTINATION lib/tensorrt
-        PUBLIC_HEADER DESTINATION include/tensorrt)
-install(TARGETS batch_norm
-        ARCHIVE DESTINATION lib/tensorrt
-        PUBLIC_HEADER DESTINATION include/tensorrt)
-install(TARGETS create_vgg_engine
-        ARCHIVE DESTINATION lib/tensorrt
-        PUBLIC_HEADER DESTINATION include/tensorrt)
-install(TARGETS serialize_vgg_engine
-        ARCHIVE DESTINATION lib/tensorrt
-        PUBLIC_HEADER DESTINATION include/tensorrt)
-install(FILES ../include/common.h DESTINATION include/tensorrt)
-install(FILES ../include/logging.h DESTINATION include/tensorrt)
-install(FILES ../include/weight.h DESTINATION include/tensorrt)
-install(FILES ../include/inference.h DESTINATION include/tensorrt)
-install(FILES ../include/batch_norm.h DESTINATION include/tensorrt)
-install(FILES ../include/vgg_network.h DESTINATION include/tensorrt)
 install(FILES ../include/vgg_engine.h DESTINATION include/tensorrt)
 
 # Link common with all libraries
-target_link_libraries(common ${OpenCV_LIBS} nvinfer cudart)
-target_link_libraries(logging ${OpenCV_LIBS} nvinfer cudart)
-target_link_libraries(load_weights ${OpenCV_LIBS} nvinfer cudart logging)
-target_link_libraries(inference ${OpenCV_LIBS} nvinfer cudart)
-target_link_libraries(batch_norm ${OpenCV_LIBS} nvinfer cudart)
-target_link_libraries(create_vgg_engine
+target_link_libraries(
+        ${PROJECT_NAME}
         ${OpenCV_LIBS}
         nvinfer
         cudart
-        logging
-        load_weights
-        batch_norm)
-target_link_libraries(serialize_vgg_engine
-        ${OpenCV_LIBS}
-        nvinfer
-        cudart
-        logging
-        load_weights
-        create_vgg_engine
-        batch_norm)
+        tensorrt_common
+        tensorrt_logging
+        tensorrt_load_weights)
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION 0.0.1 SOVERSION 0)
