@@ -16,7 +16,7 @@ import os
 import struct
 
 import torch
-from torchvision.models import vgg16
+from torchvision.models import vgg11
 
 from vgg_pytorch import VGG
 
@@ -34,8 +34,8 @@ if not os.path.exists("/opt/tensorrt_models/torch/vgg"):
 def main():
     args = parser.parse_args()
     if args.num_classes == 1000:
-        model = vgg16(pretrained=True).to("cuda:0")
-        print("Load the official pre-training vgg16 weight successfully.")
+        model = vgg11(pretrained=True).to("cuda:0")
+        print("Load the official pre-training vgg11 weight successfully.")
     else:
         model = VGG(num_classes=args.num_classes).to("cuda:0")
         model.load_state_dict(
@@ -44,7 +44,7 @@ def main():
 
     model.eval()
 
-    f = open("/opt/tensorrt_models/torch/vgg/vgg.wts", "w")
+    f = open("/opt/tensorrt_models/torch/vgg/vgg11.wts", "w")
     f.write("{}\n".format(len(model.state_dict().keys())))
     for k, v in model.state_dict().items():
         vr = v.reshape(-1).cpu().numpy()
@@ -55,7 +55,7 @@ def main():
         f.write("\n")
 
     print(
-        "The weight conversion has been completed and saved to `/opt/tensorrt_models/torch/vgg/vgg.wts`."
+        "The weight conversion has been completed and saved to `/opt/tensorrt_models/torch/vgg/vgg11.wts`."
     )
 
 

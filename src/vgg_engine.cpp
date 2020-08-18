@@ -21,10 +21,131 @@ using namespace std;
 
 static Logger gLogger; /* NOLINT */
 
+static const char *VGG11_WEIGHTS = "/opt/tensorrt_models/torch/vgg/vgg11.wts";
 static const char *VGG16_WEIGHTS = "/opt/tensorrt_models/torch/vgg/vgg16.wts";
 
+ICudaEngine *create_vgg11_network(int max_batch_size, IBuilder *builder, DataType data_type, IBuilderConfig *config,
+                                  int number_classes) {
+  INetworkDefinition *model = builder->createNetworkV2(0);
 
-// Custom create VGG16 neural network
+  // Create input tensor of shape {1, 3, 224, 224} with name INPUT_NAME
+  ITensor *data = model->addInput("input", data_type, Dims3{3, 224, 224});
+  assert(data);
+
+  std::map<std::string, Weights> weights = load_weights(VGG11_WEIGHTS);
+
+  // Add convolution layer with 64 outputs and a 3x3 filter.
+  IConvolutionLayer *conv1 =
+          model->addConvolutionNd(*data, 64, DimsHW{3, 3}, weights["features.0.weight"], weights["features.0.bias"]);
+  assert(conv1);
+  conv1->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu1 = model->addActivation(*conv1->getOutput(0), ActivationType::kRELU);
+  assert(relu1);
+
+  // Add max pooling layer with stride of 2x2 and kernel size of 2x2
+  IPoolingLayer *pool1 = model->addPoolingNd(*relu1->getOutput(0), PoolingType::kMAX, DimsHW{2, 2});
+  assert(pool1);
+  pool1->setStrideNd(DimsHW{2, 2});
+
+  // Add convolution layer with 128 outputs and a 3x3 filter.
+  IConvolutionLayer *conv2 = model->addConvolutionNd(*pool1->getOutput(0), 128, DimsHW{3, 3},
+                                                     weights["features.3.weight"], weights["features.3.bias"]);
+  assert(conv2);
+  conv2->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu2 = model->addActivation(*conv2->getOutput(0), ActivationType::kRELU);
+  assert(relu2);
+
+  // Add max pooling layer with stride of 2x2 and kernel size of 2x2
+  IPoolingLayer *pool2 = model->addPoolingNd(*relu2->getOutput(0), PoolingType::kMAX, DimsHW{2, 2});
+  assert(pool2);
+  pool2->setStrideNd(DimsHW{2, 2});
+
+  // Add convolution layer with 256 outputs and a 3x3 filter.
+  IConvolutionLayer *conv3 = model->addConvolutionNd(*pool2->getOutput(0), 256, DimsHW{3, 3},
+                                                     weights["features.6.weight"], weights["features.6.bias"]);
+  assert(conv3);
+  conv3->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu3 = model->addActivation(*conv3->getOutput(0), ActivationType::kRELU);
+  assert(relu3);
+  // Add convolution layer with 256 outputs and a 3x3 filter.
+  IConvolutionLayer *conv4 = model->addConvolutionNd(*relu3->getOutput(0), 256, DimsHW{3, 3},
+                                                     weights["features.8.weight"], weights["features.8.bias"]);
+  assert(conv4);
+  conv4->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu4 = model->addActivation(*conv4->getOutput(0), ActivationType::kRELU);
+  assert(relu4);
+
+  // Add max pooling layer with stride of 2x2 and kernel size of 2x2
+  IPoolingLayer *pool3 = model->addPoolingNd(*relu4->getOutput(0), PoolingType::kMAX, DimsHW{2, 2});
+  assert(pool3);
+  pool3->setStrideNd(DimsHW{2, 2});
+
+  // Add convolution layer with 512 outputs and a 3x3 filter.
+  IConvolutionLayer *conv5 = model->addConvolutionNd(*pool3->getOutput(0), 512, DimsHW{3, 3},
+                                                     weights["features.11.weight"], weights["features.11.bias"]);
+  assert(conv5);
+  conv5->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu5 = model->addActivation(*conv5->getOutput(0), ActivationType::kRELU);
+  assert(relu5);
+  // Add convolution layer with 512 outputs and a 3x3 filter.
+  IConvolutionLayer *conv6 = model->addConvolutionNd(*relu5->getOutput(0), 512, DimsHW{3, 3},
+                                                     weights["features.13.weight"], weights["features.13.bias"]);
+  assert(conv6);
+  conv6->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu6 = model->addActivation(*conv6->getOutput(0), ActivationType::kRELU);
+  assert(relu6);
+
+  // Add max pooling layer with stride of 2x2 and kernel size of 2x2
+  IPoolingLayer *pool4 = model->addPoolingNd(*relu6->getOutput(0), PoolingType::kMAX, DimsHW{2, 2});
+  assert(pool4);
+  pool4->setStrideNd(DimsHW{2, 2});
+
+  // Add convolution layer with 512 outputs and a 3x3 filter.
+  IConvolutionLayer *conv7 = model->addConvolutionNd(*pool4->getOutput(0), 512, DimsHW{3, 3},
+                                                      weights["features.16.weight"], weights["features.16.bias"]);
+  assert(conv7);
+  conv7->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu7 = model->addActivation(*conv7->getOutput(0), ActivationType::kRELU);
+  assert(relu7);
+  // Add convolution layer with 512 outputs and a 3x3 filter.
+  IConvolutionLayer *conv8 = model->addConvolutionNd(*relu7->getOutput(0), 512, DimsHW{3, 3},
+                                                      weights["features.18.weight"], weights["features.18.bias"]);
+  assert(conv8);
+  conv8->setPaddingNd(DimsHW{1, 1});
+  IActivationLayer *relu8 = model->addActivation(*conv8->getOutput(0), ActivationType::kRELU);
+  assert(relu8);
+
+  // Add max pooling layer with stride of 2x2 and kernel size of 2x2
+  IPoolingLayer *pool5 = model->addPoolingNd(*relu8->getOutput(0), PoolingType::kMAX, DimsHW{2, 2});
+  assert(pool5);
+  pool5->setStrideNd(DimsHW{2, 2});
+
+  IFullyConnectedLayer *fc1 = model->addFullyConnected(*pool5->getOutput(0), 4096, weights["classifier.0.weight"],
+                                                       weights["classifier.0.bias"]);
+  relu1 = model->addActivation(*fc1->getOutput(0), ActivationType::kRELU);
+  IFullyConnectedLayer *fc2 = model->addFullyConnected(*relu1->getOutput(0), 4096, weights["classifier.3.weight"],
+                                                       weights["classifier.3.bias"]);
+  relu2 = model->addActivation(*fc2->getOutput(0), ActivationType::kRELU);
+  IFullyConnectedLayer *fc3 = model->addFullyConnected(*relu2->getOutput(0), number_classes,
+                                                       weights["classifier.6.weight"], weights["classifier.6.bias"]);
+
+  fc3->getOutput(0)->setName("label");
+  model->markOutput(*fc3->getOutput(0));
+
+  // Build engine
+  builder->setMaxBatchSize(max_batch_size);
+  config->setMaxWorkspaceSize(1_GiB);
+  config->setFlag(BuilderFlag::kFP16);
+  ICudaEngine *engine = builder->buildEngineWithConfig(*model, *config);
+
+  // Don't need the network any more
+  model->destroy();
+
+  // Release host memory
+  for (auto &mem : weights) { free((void *) (mem.second.values)); }
+
+  return engine;
+}
 ICudaEngine *create_vgg16_network(int max_batch_size, IBuilder *builder, DataType data_type, IBuilderConfig *config,
                                   int number_classes) {
   INetworkDefinition *model = builder->createNetworkV2(0);
@@ -178,6 +299,31 @@ ICudaEngine *create_vgg16_network(int max_batch_size, IBuilder *builder, DataTyp
   return engine;
 }
 
+void create_vgg11_engine(int max_batch_size, IHostMemory **model_stream, int number_classes) {
+  // Create builder
+  report_message(0);
+  cout << "Creating builder..." << endl;
+  IBuilder *builder = createInferBuilder(gLogger);
+  IBuilderConfig *config = builder->createBuilderConfig();
+
+  // Create model to populate the network, then set the outputs and create an engine
+  report_message(0);
+  cout << "Creating VGG11 network engine..." << endl;
+  ICudaEngine *engine = create_vgg11_network(max_batch_size, builder, DataType::kFLOAT, config, number_classes);
+
+  assert(engine != nullptr);
+
+  // Serialize the engine
+  report_message(0);
+  cout << "Serialize model engine..." << endl;
+  (*model_stream) = engine->serialize();
+  report_message(0);
+  std::cout << "Create VGG11 engine successful." << std::endl;
+
+  // Close everything down
+  engine->destroy();
+  builder->destroy();
+}
 void create_vgg16_engine(int max_batch_size, IHostMemory **model_stream, int number_classes) {
   // Create builder
   report_message(0);

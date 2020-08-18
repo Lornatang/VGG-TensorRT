@@ -32,6 +32,7 @@ static const unsigned int INPUT_W = 224;
 const char *INPUT_NAME = "input";
 const char *OUTPUT_NAME = "label";
 const char *LABEL_FILE = "/opt/tensorrt_models/data/imagenet1000.txt";
+const char *VGG11_ENGINE_FILE = "/opt/tensorrt_models/torch/vgg/vgg11.engine";
 const char *VGG16_ENGINE_FILE = "/opt/tensorrt_models/torch/vgg/vgg16.engine";
 
 
@@ -61,11 +62,11 @@ int main(int argc, char **argv) {
   if (std::string(argv[1]) == "--engine") {
     IHostMemory *model_stream{nullptr};
     report_message(0);
-    std::cout << "Start serialize VGG16 network engine." << std::endl;
-    create_vgg16_engine(BATCH_SIZE, &model_stream, atoi(argv[2]));
+    std::cout << "Start serialize VGG11 network engine." << std::endl;
+    create_vgg11_engine(BATCH_SIZE, &model_stream, atoi(argv[2]));
     assert(model_stream != nullptr);
 
-    std::ofstream engine(VGG16_ENGINE_FILE);
+    std::ofstream engine(VGG11_ENGINE_FILE);
     if (!engine) {
       report_message(2);
       std::cerr << "Could not open plan output file" << std::endl;
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
   } else if (std::string(argv[1]) == "--image") {
     report_message(0);
     std::cout << "Read from`" << VGG16_ENGINE_FILE << "` inference engine." << std::endl;
-    std::ifstream file(VGG16_ENGINE_FILE, std::ios::binary);
+    std::ifstream file(VGG11_ENGINE_FILE, std::ios::binary);
     if (file.good()) {
       file.seekg(0, std::ifstream::end);
       size = file.tellg();
